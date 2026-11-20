@@ -6,6 +6,7 @@ services:
       - "127.0.0.1:${APP_PORT:-18313}:8000"
     environment:
       WORKBENCH_DB: /state/ledger.sqlite3
+      DISPATCH_THRESHOLD: ${DISPATCH_THRESHOLD:-110}
     volumes:
       - ledger:/state
     healthcheck:

@@ -13,6 +13,13 @@ CREATE TABLE IF NOT EXISTS reviews (
   decision TEXT NOT NULL, note TEXT NOT NULL, changed TEXT NOT NULL,
   PRIMARY KEY(run_id,version)
 );
+CREATE TABLE IF NOT EXISTS adjudications (
+  run_id TEXT NOT NULL REFERENCES runs(id), key TEXT NOT NULL,
+  revision INTEGER NOT NULL, chosen_line INTEGER NOT NULL,
+  note TEXT NOT NULL, changed TEXT NOT NULL,
+  provisional TEXT NOT NULL,
+  PRIMARY KEY(run_id,key)
+);
 """
 
 

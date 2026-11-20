@@ -120,12 +120,53 @@ async function render() {
     if (stage === 'domain') {
       view = [key, [`并联总流量 · ${settings.unit}`, 'amount', 'num'], line, ['明细依据', inspect]];
       rows = result.accepted;
+    } else if (stage === 'adjudication') {
+      const adjudication = await query(`/api/adjudication/${id}`);
+      const rulings = new Map(adjudication.rulings.map(item => [item.key, item]));
+      view = [key, ['来源行', line], [`估算流量 · ${settings.unit}`, candidate => candidate.ok ? candidate.amount : '无法求解'],
+              ['阈值侧', candidate => candidate.ok ? candidate.side : settings.reasons[candidate.code] || candidate.code],
+              ['状态', candidate => candidate.ok ? el('span', '未核实·禁止对账', 'state problem') : tag(candidate.code)],
+              ['裁定', (candidate) => {
+                const dispute = result.disputes.find(item => item.candidates.some(row => row.line === candidate.line));
+                const ruling = rulings.get(dispute.key);
+                if (ruling) {
+                  const done = el('span', ruling.chosen_line === candidate.line ? '已采信' : '未采信',
+                    ruling.chosen_line === candidate.line ? 'state' : 'state problem');
+                  return done;
+                }
+                if (!candidate.ok) return el('span', '不可采信', 'state problem');
+                const button = el('button', '采信此曲线', 'btn');
+                button.type = 'button';
+                button.addEventListener('click', async () => {
+                  button.disabled = true;
+                  try {
+                    const note = prompt('填写裁定依据（可留空）', '') ?? '';
+                    await query(`/api/adjudication/${id}/${dispute.key}`, {chosen_line: candidate.line, note});
+                    notice('裁定已生效，对账已按采信曲线重算');
+                    await render();
+                  } catch (error) {
+                    notice(error.message, true);
+                    if (error.status === 409) await render();
+                  } finally { button.disabled = false; }
+                });
+                return button;
+              }]];
+      rows = result.disputes.flatMap(dispute => dispute.candidates.map(candidate => ({...candidate, key: dispute.key})));
+      if (!rows.length) {
+        view = [key];
+        rows = [];
+      }
     } else if (stage === 'quality') {
       view = [key, line, ['判定', row => tag(row.code)], ['说明', 'detail'], ['字段', raw]];
       rows = [...result.quarantine, ...result.suppressed].sort((a,b) => a.line-b.line);
     } else if (stage === 'reconcile') {
+      const rulings = (await query(`/api/adjudication/${id}`)).rulings;
+      const book = rulings.length
+        ? (await query(`/api/adjudication/${id}/effective`)).book
+        : result.book;
       view = [key, ['实际', 'amount', 'num'], ['外部账', 'reference', 'num'], ['差值', 'delta', 'num'], ['外部行', 'book_line', 'num'], ['结论', row => tag(row.code)]];
-      rows = [...result.book.rows].sort((a,b) => Number(a.code === 'MATCH') - Number(b.code === 'MATCH'));
+      rows = [...book.rows].sort((a,b) => Number(a.code === 'MATCH') - Number(b.code === 'MATCH'));
+      if (rulings.length) notice(`已按 ${rulings.length} 条裁定重算对账；原始批次对账见导出证据`);
     } else if (stage === 'intake') {
       const intake = await query('/api/intake', inputs);
       view = [line, ['分类', 'kind'], ['字段', raw]];

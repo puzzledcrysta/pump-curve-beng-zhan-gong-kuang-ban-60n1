@@ -50,6 +50,12 @@ class Review(BaseModel):
     note: str = Field(default='',max_length=500)
 
 
+class Adjudication(BaseModel):
+    # 采信冲突组中的哪一条来源（按 CSV 物理行号指认）
+    chosen_line: int = Field(ge=1)
+    note: str = Field(default='', max_length=500)
+
+
 def read_sample(name):
     choices = {'shift':'shift.csv','external':'external.csv'}
     if name not in choices:

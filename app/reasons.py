@@ -9,6 +9,8 @@ REASONS = {
     'AMOUNT_DELTA': '复算与外部账计量不同', 'BOOK_CONFLICT': '独立账含重复业务键',
     'RUN_UNKNOWN': '没有此批次', 'DEMO_UNKNOWN': '没有此样例', 'STALE': '复核版本已过期',
     'REVIEW_NOTE': '有差异时须填写复核意见', 'REVIEW_DECISION': '复核结论无效',
+    'ADJUDICATION_EXISTS': '该工况已有生效裁定', 'DISPUTE_UNKNOWN': '该批次没有待裁定的同版冲突',
+    'CANDIDATE_UNKNOWN': '裁定的来源行不属于该冲突工况', 'CANDIDATE_INVALID': '该来源曲线无法算出交点，不能采信',
 }
 
-REASONS.update({'PUMP_FORMAT': '测点格式无效', 'PUMP_POINT': '同流量测点重复', 'PUMP_LIMIT': '测点数或泵数超限', 'PUMP_MONOTONE': '曲线单调性错误', 'PUMP_SPAN': '实测区间无交集', 'PUMP_CROSS': '实测区间无交点', 'PUMP_DUP': '泵编号无效', 'DATE': '日期格式无效', 'REV_BLOCKED': '较新来源尚未采信'})
+REASONS.update({'PUMP_FORMAT': '测点格式无效', 'PUMP_POINT': '同流量测点重复', 'PUMP_LIMIT': '测点数或泵数超限', 'PUMP_MONOTONE': '曲线单调性错误', 'PUMP_SPAN': '实测区间无交集', 'PUMP_CROSS': '实测区间无交点', 'PUMP_DUP': '泵编号无效', 'DATE': '日期格式无效', 'REV_BLOCKED': '较新来源尚未采信', 'PROVISIONAL': '同版曲线冲突·未核实估算', 'ADJUDICATED': '已裁定采信'})
